@@ -28,14 +28,22 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "Welcome to HappyCow API by Lily !" });
 });
 
-app.get("/hello", (req, res) => {
-  res.json({ message: "Hello" });
+//urls de connextion à la BDD
+// const url = "mongodb://Localhost/happycow"
+const url = process.env.MONGODB_URI;
+
+//connect BDD
+mongoose.connect(url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
 });
 
 app.all("*", function (req, res) {
   res.json({ message: "Page not found" });
 });
 
-app.listen(process.env.PORT || 3200, () => {
+app.listen(process.env.PORT || 3001, () => {
   console.log("Server started");
 });
