@@ -1,78 +1,79 @@
 const express = require("express");
 const router = express.Router();
 
-//Je déclare les packages utilisés pour l'encryptage des mdp
+//Packages for encrypting password (uid2 and crypto-js must be install)
 const uid2 = require("uid2");
 const SHA256 = require("crypto-js/sha256");
 const encBase64 = require("crypto-js/enc-base64");
 
-//import des models utilisés
+//import models
 const User = require("../models/User");
 
-//Route POST : /user/signup : inscription des users à la bdd
+//Route POST : /user/signup : New user signup in database
 router.post("/user/signup", async (req, res) => {
   try {
-    //Je destructure mon body
-    const { email, username, password } = req.fields;
+    // Search Database : email already exist ?
+    const user = await User.findOne({ email: req.fields.email });
 
-    // Etape1 : vérifier qu'il n'y a pas déjà un user qui possède cet email
-    const user = await User.findOne({ email: email });
+    // If email already exist
+    if (user) {
+      res.status(409).json({ message: "This email already has an account" });
 
-    if (!user) {
-      // Etape2 : encrypter le mot de passe (uid2, crypto-js)et générer le token
-      const salt = uid2(16);
-      const hash = SHA256(salt + password).toString(encBase64);
-      const token = uid2(64);
+      // If email not exist in database
+    } else {
+      // Inputs verifications
+      if (req.fields.email && req.fields.password && req.fields.username) {
+        // If all input ok, create new User
 
-      //Etape3 : créer un nouvel user dans la BDD
+        // Part1 : encrypting password and create token
+        const token = uid2(64);
+        const salt = uid2(64);
+        const hash = SHA256(req.fields.password + salt).toString(encBase64);
 
-      const newUser = new User({
-        email: email,
-        account: {
-          username: username,
-          phone: phone,
-          password: password,
-        },
-        token: token,
-        hash: hash,
-        salt: salt,
-      });
+        // Part2 : Create new User
+        const newUser = new User({
+          email: req.fields.email,
+          token: token,
+          hash: hash,
+          salt: salt,
+          account: {
+            username: req.fields.username,
+          },
+        });
 
-      if (username) {
-        // Sauver le new User
+        // Part3 : save new user in database
         await newUser.save();
-        // Etape4 : répondre au client
         res.status(200).json({
           _id: newUser._id,
+          email: newUser.email,
           token: newUser.token,
           account: newUser.account,
         });
       } else {
-        res.status(400).json({ error: "Missing parameters" });
+        // If missing inputs parameters
+        res.status(400).json({ message: "Missing parameters" });
       }
-    } else {
-      res.status(409).json({ message: "This email already has an account" });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.log(error.message);
+    res.status(400).json({ message: error.message });
   }
 });
 
-//Route POST : /user/login : se logguer à partir d'un mail + password
+//Route POST : /user/login : user login with email + password
 router.post("/user/login", async (req, res) => {
   try {
-    //Je destructure mon body
+    //Destructuring body
     const { email, password } = req.fields;
-    // Etape1 : chercher le user qui souhaite se connecter
+    // Part1 : seach user in database
     const user = await User.findOne({ email: email });
     if (user) {
-      // Etape2 : vérifier que le mot de passe est le bon
-      //nouveau hash à partir du salt de la bdd pour ce user + le password qu'il vient de rentrer
+      // Part2 : check password is ok
+      //new hash with database salt for this user + password in body
       const newHash = SHA256(`${user.salt}${password}`).toString(encBase64);
 
       if (newHash === user.hash) {
-        // Etape3 : répondre au client OK
-        //console.log("On peut se connecter");
+        // Part3: response for client
         res.status(200).json({
           _id: user._id,
           token: user.token,
@@ -89,5 +90,5 @@ router.post("/user/login", async (req, res) => {
   }
 });
 
-//export du fichier routes
+//export router
 module.exports = router;

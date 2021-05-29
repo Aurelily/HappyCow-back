@@ -19,20 +19,23 @@ app.use(
   })
 );
 
-//import et activation des routes
+//import restaurants json datas
+const data = require("./datas/restaurants.json");
+
+//routes import and activation
 const userRoutes = require("./routes/user");
 app.use(userRoutes);
 
-//Route d'accueil pour MongoDB ATLAS
+//Welcome route for the app !
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Welcome to HappyCow API by Lily !" });
 });
 
-//urls de connextion à la BDD
+//urls to connect to database
 // const url = "mongodb://Localhost/happycow"
 const url = process.env.MONGODB_URI;
 
-//connect BDD
+//connect database
 mongoose.connect(url, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
