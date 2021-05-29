@@ -10,6 +10,18 @@ const User = mongoose.model("User", {
       required: true,
       type: String,
     },
+    vegeType: {
+      required: true,
+      type: String,
+    },
+    location: {
+      required: true,
+      type: String,
+    },
+    yearBirth: {
+      required: true,
+      type: Number,
+    },
   },
   token: String,
   hash: String,

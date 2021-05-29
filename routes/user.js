@@ -22,7 +22,14 @@ router.post("/user/signup", async (req, res) => {
       // If email not exist in database
     } else {
       // Inputs verifications
-      if (req.fields.email && req.fields.password && req.fields.username) {
+      if (
+        req.fields.email &&
+        req.fields.password &&
+        req.fields.username &&
+        req.fields.vegeType &&
+        req.fields.location &&
+        req.fields.yearBirth
+      ) {
         // If all input ok, create new User
 
         // Part1 : encrypting password and create token
@@ -38,6 +45,9 @@ router.post("/user/signup", async (req, res) => {
           salt: salt,
           account: {
             username: req.fields.username,
+            vegeType: req.fields.vegeType,
+            location: req.fields.location,
+            yearBirth: req.fields.yearBirth,
           },
         });
 
