@@ -60,33 +60,31 @@ router.post("/user/signup", async (req, res) => {
   }
 });
 
-//Route POST : /user/login : user login with email + password
-router.post("/user/login", async (req, res) => {
+//Route POST : /user/signin : user login with email + password
+router.post("/user/signin", async (req, res) => {
   try {
-    //Destructuring body
-    const { email, password } = req.fields;
-    // Part1 : seach user in database
-    const user = await User.findOne({ email: email });
-    if (user) {
-      // Part2 : check password is ok
-      //new hash with database salt for this user + password in body
-      const newHash = SHA256(`${user.salt}${password}`).toString(encBase64);
+    const user = await User.findOne({ email: req.fields.email });
 
-      if (newHash === user.hash) {
-        // Part3: response for client
+    if (user) {
+      //if user put the good password
+      if (
+        SHA256(req.fields.password + user.salt).toString(encBase64) ===
+        user.hash
+      ) {
         res.status(200).json({
           _id: user._id,
           token: user.token,
           account: user.account,
         });
       } else {
-        res.status(401).json({ message: "Unauthorized" });
+        res.status(401).json({ error: "Unauthorized" });
       }
     } else {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(400).json({ message: "User not found" });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.log(error.message);
+    res.json({ message: error.message });
   }
 });
 
