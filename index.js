@@ -1,23 +1,19 @@
 // Dependencies
-
+//import packages
 const express = require("express");
-const app = express();
-
+const formidable = require("express-formidable");
+const morgan = require("morgan");
 const cors = require("cors");
-app.use(cors());
-
 require("dotenv").config();
 
-const mongoose = require("mongoose");
+//activate package
+const app = express();
+app.use(formidable());
+app.use(morgan("dev"));
+app.use(cors());
 
-var morgan = require("morgan");
-app.use(
-  morgan("dev", {
-    skip: function (req, res) {
-      return res.statusCode < 400;
-    },
-  })
-);
+//Mongoose
+const mongoose = require("mongoose");
 
 //import restaurants json datas
 const data = require("./datas/restaurants.json");
@@ -28,7 +24,7 @@ app.use(userRoutes);
 
 //Welcome route for the app !
 app.get("/", (req, res) => {
-  res.status(200).json({ message: "Welcome to HappyCow API by Lily !" });
+  res.status(200).json(data);
 });
 
 //urls to connect to database
