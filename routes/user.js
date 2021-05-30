@@ -17,51 +17,61 @@ router.post("/user/signup", async (req, res) => {
 
     // If email already exist
     if (user) {
-      res.status(409).json({ message: "This email already has an account" });
+      res.status(409).json({ message: "This email already has an account." });
 
       // If email not exist in database
     } else {
-      // Inputs verifications
-      if (
-        req.fields.email &&
-        req.fields.password &&
-        req.fields.username &&
-        req.fields.vegeType &&
-        req.fields.location &&
-        req.fields.yearBirth
-      ) {
-        // If all input ok, create new User
-
-        // Part1 : encrypting password and create token
-        const token = uid2(64);
-        const salt = uid2(64);
-        const hash = SHA256(req.fields.password + salt).toString(encBase64);
-
-        // Part2 : Create new User
-        const newUser = new User({
-          email: req.fields.email,
-          token: token,
-          hash: hash,
-          salt: salt,
-          account: {
-            username: req.fields.username,
-            vegeType: req.fields.vegeType,
-            location: req.fields.location,
-            yearBirth: req.fields.yearBirth,
-          },
-        });
-
-        // Part3 : save new user in database
-        await newUser.save();
-        res.status(200).json({
-          _id: newUser._id,
-          email: newUser.email,
-          token: newUser.token,
-          account: newUser.account,
-        });
+      // Search Database : username already exist ?
+      const username = await User.findOne({ username: req.fields.username });
+      //If username already exist ?
+      if (username) {
+        res
+          .status(409)
+          .json({ message: "This username already has an account." });
+        // If username not exist in database
       } else {
-        // If missing inputs parameters
-        res.status(400).json({ message: "Missing parameters" });
+        // Inputs verifications
+        if (
+          req.fields.email &&
+          req.fields.password &&
+          req.fields.username &&
+          req.fields.vegeType &&
+          req.fields.location &&
+          req.fields.yearBirth
+        ) {
+          // If all input ok, create new User
+
+          // Part1 : encrypting password and create token
+          const token = uid2(64);
+          const salt = uid2(64);
+          const hash = SHA256(req.fields.password + salt).toString(encBase64);
+
+          // Part2 : Create new User
+          const newUser = new User({
+            email: req.fields.email,
+            token: token,
+            hash: hash,
+            salt: salt,
+            account: {
+              username: req.fields.username,
+              vegeType: req.fields.vegeType,
+              location: req.fields.location,
+              yearBirth: req.fields.yearBirth,
+            },
+          });
+
+          // Part3 : save new user in database
+          await newUser.save();
+          res.status(200).json({
+            _id: newUser._id,
+            email: newUser.email,
+            token: newUser.token,
+            account: newUser.account,
+          });
+        } else {
+          // If missing inputs parameters
+          res.status(400).json({ message: "Missing parameters" });
+        }
       }
     }
   } catch (error) {
