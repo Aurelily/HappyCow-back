@@ -38,6 +38,10 @@ app.get("/restaurants", async (req, res) => {
 
     //si il y a un type en query je modifie les datas envoyées
     if (reqType) {
+      //Je récupère dans un tableau ma query contenant plusieurs types séparés par des virgules
+      const typesTab = reqType.split(",");
+      console.log("typesTab:" + typesTab);
+      console.log("reqType:" + reqType);
       for (let i = 0; i < data.length; i++) {
         if (data[i].type.indexOf(reqType) !== -1) {
           newResult.push(data[i]);
