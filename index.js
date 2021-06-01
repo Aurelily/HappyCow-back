@@ -31,27 +31,24 @@ app.get("/", (req, res) => {
 app.get("/restaurants", async (req, res) => {
   try {
     //Définir les différentes sortes de requetes/recherches possibles
-    const reqType1 = req.query.type1;
+    const reqType = req.query.types;
 
-    // //Je crée un objet vide qui contiendra mes clés de filtre
-    // let filters = {};
+    //Je crée un tableau vide qui contiendra nouveaux résultats filtrés selon la query
+    let newResult = [];
 
-    // //si il y a un type j'ajoute la clé type1 à mon objet filters'
-    // if (reqType1) {
-    //   filters.type1 = new RegExp(reqType1, "i");
-    // }
-    // //Je mets mon objet filters dans ma requete find() pour obtenir mon résultat filtré
-    // let restaurants = await data.find(filters);
+    //si il y a un type en query je modifie les datas envoyées
+    if (reqType) {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].type.indexOf(reqType) !== -1) {
+          newResult.push(data[i]);
+        }
+      }
+      res.status(200).json(newResult);
+    } else {
+      res.status(200).json(data);
+    }
 
-    // // calculer le nombre de résultats
-    // const count = await data.countDocuments(filters);
-
-    // //réponse au client
-    // res.status(200).json({
-    //   count: count,
-    //   restaurants: restaurants,
-    // });
-    res.status(200).json(data);
+    // res.status(200).json(data);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
