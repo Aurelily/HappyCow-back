@@ -53,13 +53,12 @@ app.get("/restaurants", async (req, res) => {
       //Je push les restaus qui correspondent uniquement aux query récupérés dans typesTab
       for (let i = 0; i < data.length; i++) {
         for (let j = 0; j < typesTab.length; j++) {
-          if (data[i].type.indexOf(typesTab[j]) !== -1) {
+          if (
+            data[i].type.indexOf(typesTab[j]) !== -1 &&
+            reqSearch.test(data[i].name) === true
+          ) {
             newResult.push(data[i]);
           }
-        }
-        //Je push les restaus qui correspondent à ma recherche par name
-        if (data[i].name.indexOf(reqSearch) !== -1) {
-          newResult.push(data[i]);
         }
       }
       newResult.sort(tri);
@@ -68,22 +67,6 @@ app.get("/restaurants", async (req, res) => {
       data.sort(tri);
       res.status(200).json(data);
     }
-
-    // if (reqName) {
-    //   let reqSearch = new RegExp(reqName, "i");
-    //   for (let k = 0; k < data.length; k++) {
-    //     if (data[k].name.indexOf(reqSearch) !== -1) {
-    //       newResult.push(data[k]);
-    //     }
-    //   }
-    //   newResult.sort(tri);
-    //   res.status(200).json(newResult);
-    // } else {
-    //   data.sort(tri);
-    //   res.status(200).json(data);
-    // }
-
-    // res.status(200).json(data);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
