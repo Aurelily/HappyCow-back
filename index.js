@@ -5,6 +5,7 @@ const formidable = require("express-formidable");
 const morgan = require("morgan");
 const cors = require("cors");
 require("dotenv").config();
+const geolib = require("geolib");
 
 //activate package
 const app = express();
@@ -39,7 +40,7 @@ app.get("/restaurants", async (req, res) => {
       return a.name > b.name ? 1 : -1;
     }
 
-    //Je crée un tableau vide qui contiendra nouveaux résultats filtrés selon la query
+    //Je crée un tableau vide qui contiendra les nouveaux résultats filtrés selon la query
     let newResult = [];
 
     //si il y a un type en query je modifie les datas envoyées
@@ -69,6 +70,33 @@ app.get("/restaurants", async (req, res) => {
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+//GET : restaurants around user
+app.get("/restaurants/around", async (req, res) => {
+  //Définir les query possibles
+  const reqLongitude = req.query.longitude;
+  const reqLatitude = req.query.latitude;
+  //Je crée un tableau vide qui contiendra seulement les coordonnées des lieux
+  // let placesAround = [];
+
+  if (reqLongitude && reqLatitude) {
+    try {
+      const placesAround = geolib.orderByDistance(
+        { latitude: reqLatitude, longitude: reqLongitude },
+        [
+          { latitude: 48.862881, longitude: 2.351543 },
+          { latitude: 48.861446, longitude: 2.358393 },
+          { latitude: 48.849205, longitude: 2.349775 },
+        ]
+      );
+      res.status(200).json(placesAround);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  } else {
+    res.status(400).json({ error: "Missing location" });
   }
 });
 
