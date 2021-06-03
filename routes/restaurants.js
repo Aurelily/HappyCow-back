@@ -52,11 +52,13 @@ router.get("/restaurants", async (req, res) => {
             data[i].type.indexOf(typesTab[j]) !== -1 &&
             reqSearch.test(data[i].name) === true
           ) {
+            //Si je suis géolocalisé
             if (reqLatitude && reqLongitude) {
               let distanceKm = calcDistance(
                 data[i].location.lat,
                 data[i].location.lng
               );
+              //J'ajoute une clé distanceKm à mon objet data[i] pour pouvoir trier sur la distance
               data[i].distanceKm = distanceKm;
             }
             newResult.push(data[i]);
@@ -68,9 +70,8 @@ router.get("/restaurants", async (req, res) => {
       } else {
         newResult.sort(tri);
       }
-
+      //   let miniNewResults = newResult.slice(0, 101);
       res.status(200).json(newResult);
-      //   console.log(newResult);
     } else {
       //Si pas de filtres (le cas quand on arrive directement sur la home page)
       for (let i = 0; i < data.length; i++) {
@@ -87,38 +88,13 @@ router.get("/restaurants", async (req, res) => {
       } else {
         data.sort(tri);
       }
+      //   let miniData = data.slice(0, 101);
       res.status(200).json(data);
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
-
-// //GET : restaurants around user
-// router.get("/restaurants/around", async (req, res) => {
-//   //Définir les query possibles
-//   const reqLongitude = req.query.longitude;
-//   const reqLatitude = req.query.latitude;
-//   //Je crée un tableau vide qui contiendra les résultats près de moi de la loc user si autorisé
-//   const coordsTab = [];
-
-//   if (reqLongitude && reqLatitude) {
-//     try {
-//       for (let i = 0; i < data.length; i++) {
-//         coordsTab.push({
-//           latitude: data[i].location.lat,
-//           longitude: data[i].location.lng,
-//           id: data[i].placeId,
-//         });
-//       }
-//       res.status(200).json(coordsTab);
-//     } catch (error) {
-//       res.status(400).json({ error: error.message });
-//     }
-//   } else {
-//     res.status(400).json({ error: "Missing location" });
-//   }
-// });
 
 //export router
 module.exports = router;
