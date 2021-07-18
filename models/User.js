@@ -20,7 +20,7 @@ const User = mongoose.model("User", {
     },
     yearBirth: {
       required: true,
-      type: Number,
+      type: Array,
     },
   },
   token: String,

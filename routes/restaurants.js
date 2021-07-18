@@ -14,6 +14,9 @@ router.get("/restaurants", async (req, res) => {
     const reqLongitude = req.query.longitude;
     const reqLatitude = req.query.latitude;
 
+    // Je défini une limit d'affichage
+    let pageLimit = 5;
+
     // Fonction de tri ordre alphabetique par nom
     function tri(a, b) {
       return a.name > b.name ? 1 : -1;
